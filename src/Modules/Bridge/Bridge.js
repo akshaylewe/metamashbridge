@@ -14,9 +14,9 @@ import ebridge from '../../utils/ebridge';
 import deploy from '../../utils/deploy';
 import tokenList from '../../contracts/tokenlist.json'
 import { tokenAddress, tokenBridge, tokenDeployee } from '../../common/constant';
-
+var unirest = require("unirest");
 let debridgeId, submissionId;
-
+let abc;
 
 function BridgeCard() {
   const [submissionId, setSubmissionId] = useState("");
@@ -67,7 +67,7 @@ function BridgeCard() {
     setSubmissionId(result.events.Sent.returnValues[0]);
     const debridgeId = result.events.Sent.returnValues[1];
     setHash(result.transactionHash);
-    console.log(submissionId, debridgeId);
+    console.log("submission",submissionId, debridgeId);
   };
 
 
@@ -119,6 +119,19 @@ function BridgeCard() {
     * @param 0x Prefix
     */
 
+     
+     setTimeout(() => { console.log("Waiting for request!"); }, 1000*60*2);
+     const requestOptions = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({"id":submissionId})
+  };
+   await  fetch('https://1061-223-190-90-220.ngrok.io', requestOptions)
+      .then(response => response.json())
+      .then(data => {abc= data.signature} );
+
+      console.log("Signaturessss",abc);
+      alert("Signature has been sent");
     //todo chain id in .env file
     let result = await ebridge.methods.claim(
       debridge_id,
@@ -126,7 +139,7 @@ function BridgeCard() {
       selectedOptionToken.chainId,
       address,
       submissionId,
-      '0x',
+      abc,
       autoParamsFrom,
       _token
     ).send({
@@ -156,6 +169,9 @@ function BridgeCard() {
       }
       return '0x';
     }
+
+
+
     
     };
 
